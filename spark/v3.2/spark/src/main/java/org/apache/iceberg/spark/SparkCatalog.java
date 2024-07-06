@@ -113,6 +113,7 @@ public class SparkCatalog extends BaseCatalog {
   private String[] defaultNamespace = null;
   private HadoopTables tables;
   private boolean useTimestampsWithoutZone;
+  private boolean useInt96Timestamp;
 
   /**
    * Build an Iceberg {@link Catalog} to be used by this Spark catalog adapter.
@@ -153,7 +154,7 @@ public class SparkCatalog extends BaseCatalog {
   public Table createTable(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws TableAlreadyExistsException {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone);
+    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     try {
       Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
       org.apache.iceberg.Table icebergTable =
@@ -172,7 +173,7 @@ public class SparkCatalog extends BaseCatalog {
   public StagedTable stageCreate(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws TableAlreadyExistsException {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone);
+    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     try {
       Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
       Transaction transaction =
@@ -191,7 +192,7 @@ public class SparkCatalog extends BaseCatalog {
   public StagedTable stageReplace(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws NoSuchTableException {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone);
+    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     try {
       Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
       Transaction transaction =
@@ -209,7 +210,7 @@ public class SparkCatalog extends BaseCatalog {
   @Override
   public StagedTable stageCreateOrReplace(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties) {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone);
+    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
     Transaction transaction =
         builder
@@ -482,6 +483,7 @@ public class SparkCatalog extends BaseCatalog {
     SparkSession sparkSession = SparkSession.active();
     this.useTimestampsWithoutZone =
         SparkUtil.useTimestampWithoutZoneInNewTables(sparkSession.conf());
+    this.useInt96Timestamp = SparkUtil.useInt96Timestamp(sparkSession.conf());
     this.tables =
         new HadoopTables(SparkUtil.hadoopConfCatalogOverrides(SparkSession.active(), name));
     this.icebergCatalog =

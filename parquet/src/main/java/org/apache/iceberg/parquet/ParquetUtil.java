@@ -20,6 +20,7 @@ package org.apache.iceberg.parquet;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -62,6 +63,7 @@ import org.apache.parquet.hadoop.metadata.ColumnChunkMetaData;
 import org.apache.parquet.hadoop.metadata.ColumnPath;
 import org.apache.parquet.hadoop.metadata.ParquetMetadata;
 import org.apache.parquet.io.ParquetDecodingException;
+import org.apache.parquet.io.api.Binary;
 import org.apache.parquet.schema.MessageType;
 import org.apache.parquet.schema.PrimitiveType;
 
@@ -70,6 +72,12 @@ public class ParquetUtil {
   private ParquetUtil() {}
 
   private static final long UNIX_EPOCH_JULIAN = 2_440_588L;
+  private static final long MICRO_PER_MILLI = 1000L;
+  private static final long MILLI_PER_MILLI = 1000L;
+  private static final long MICRO_PER_SECOND = MICRO_PER_MILLI * MILLI_PER_MILLI;
+  private static final long SECONDS_PER_DAY = 60 * 60 * 24L;
+  private static final long MICROS_PER_DAY = MICRO_PER_SECOND * SECONDS_PER_DAY;
+  private static final int INT96_BUFFER_LENGTH = 12;
 
   public static Metrics fileMetrics(InputFile file, MetricsConfig metricsConfig) {
     return fileMetrics(file, metricsConfig, null);
@@ -418,5 +426,14 @@ public class ParquetUtil {
     int julianDay = buffer.getInt();
     return TimeUnit.DAYS.toMicros(julianDay - UNIX_EPOCH_JULIAN)
         + TimeUnit.NANOSECONDS.toMicros(timeOfDayNanos);
+  }
+
+  public static Binary convertToInt96ToBinary(Long value) {
+    long julian_us = value + UNIX_EPOCH_JULIAN * MICROS_PER_DAY;
+    int day = (int) (julian_us / MICROS_PER_DAY);
+    long micros = (julian_us % MICROS_PER_DAY) * 1000L;
+    ByteBuffer wrap = ByteBuffer.allocate(INT96_BUFFER_LENGTH);
+    wrap.order(ByteOrder.LITTLE_ENDIAN).putLong(micros).putInt(day);
+    return Binary.fromReusedByteBuffer(wrap, 0, INT96_BUFFER_LENGTH);
   }
 }

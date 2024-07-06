@@ -25,6 +25,7 @@ import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.FIXED_LE
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.FLOAT;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT96;
 
 import org.apache.iceberg.Schema;
 import org.apache.iceberg.avro.AvroSchemaUtil;
@@ -53,9 +54,9 @@ public class TypeToMessageType {
   private static final LogicalTypeAnnotation TIME_MICROS =
       LogicalTypeAnnotation.timeType(false /* not adjusted to UTC */, TimeUnit.MICROS);
   private static final LogicalTypeAnnotation TIMESTAMP_MICROS =
-      LogicalTypeAnnotation.timestampType(false /* not adjusted to UTC */, TimeUnit.MICROS);
+          LogicalTypeAnnotation.timestampType(false /* not adjusted to UTC */, TimeUnit.NANOS);
   private static final LogicalTypeAnnotation TIMESTAMPTZ_MICROS =
-      LogicalTypeAnnotation.timestampType(true /* adjusted to UTC */, TimeUnit.MICROS);
+      LogicalTypeAnnotation.timestampType(true /* adjusted to UTC */, TimeUnit.NANOS);
 
   public MessageType convert(Schema schema, String name) {
     Types.MessageTypeBuilder builder = Types.buildMessage();
@@ -136,10 +137,14 @@ public class TypeToMessageType {
       case TIME:
         return Types.primitive(INT64, repetition).as(TIME_MICROS).id(id).named(name);
       case TIMESTAMP:
-        if (((TimestampType) primitive).shouldAdjustToUTC()) {
-          return Types.primitive(INT64, repetition).as(TIMESTAMPTZ_MICROS).id(id).named(name);
+        if (((TimestampType) primitive).shouldAdjustTo96()) {
+          return Types.primitive(INT96, repetition).id(id).named(name);
         } else {
-          return Types.primitive(INT64, repetition).as(TIMESTAMP_MICROS).id(id).named(name);
+          if (((TimestampType) primitive).shouldAdjustToUTC()) {
+            return Types.primitive(INT64, repetition).as(TIMESTAMPTZ_MICROS).id(id).named(name);
+          } else {
+            return Types.primitive(INT64, repetition).as(TIMESTAMP_MICROS).id(id).named(name);
+          }
         }
       case STRING:
         return Types.primitive(BINARY, repetition).as(STRING).id(id).named(name);

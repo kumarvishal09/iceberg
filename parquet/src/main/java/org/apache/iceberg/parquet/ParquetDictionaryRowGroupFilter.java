@@ -439,6 +439,7 @@ public class ParquetDictionaryRowGroupFilter {
             dictSet.add((T) conversion.apply(dict.decodeToBinary(i)));
             break;
           case BINARY:
+          case INT96:
             dictSet.add((T) conversion.apply(dict.decodeToBinary(i)));
             break;
           case INT32:

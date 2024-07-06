@@ -154,6 +154,18 @@ public class SparkSchemaUtil {
     return schema;
   }
 
+  public static Schema convert(StructType sparkType, boolean useTimestampWithoutZone, boolean useInt96) {
+    Type converted = SparkTypeVisitor.visit(sparkType, new SparkTypeToType(sparkType));
+    Schema schema = new Schema(converted.asNestedType().asStructType().fields());
+    if (useTimestampWithoutZone) {
+      schema = SparkFixupTimestampType.fixup(schema);
+    }
+    if (useInt96) {
+      schema = SparkFixupForInt96TimestampType.fixup(schema);
+    }
+    return schema;
+  }
+
   /**
    * Convert a Spark {@link DataType struct} to a {@link Type} with new field ids.
    *

@@ -106,6 +106,10 @@ public class ParquetValueWriters {
     return new BytesWriter(desc);
   }
 
+  public static PrimitiveWriter<Long> int96(ColumnDescriptor desc) {
+    return new INT96Writer(desc);
+  }
+
   public static <E> CollectionWriter<E> collections(int dl, int rl, ParquetValueWriter<E> writer) {
     return new CollectionWriter<>(dl, rl, writer);
   }
@@ -307,6 +311,17 @@ public class ParquetValueWriters {
     public void write(int repetitionLevel, BigDecimal decimal) {
       byte[] binary = DecimalUtil.toReusedFixLengthBytes(precision, scale, decimal, bytes.get());
       column.writeBinary(repetitionLevel, Binary.fromReusedByteArray(binary));
+    }
+  }
+
+  private static class INT96Writer extends PrimitiveWriter<Long> {
+    private INT96Writer(ColumnDescriptor desc) {
+      super(desc);
+    }
+
+    @Override
+    public void write(int repetitionLevel, Long value) {
+      column.writeBinary(repetitionLevel, ParquetUtil.convertToInt96ToBinary(value));
     }
   }
 

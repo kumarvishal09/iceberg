@@ -156,6 +156,15 @@ public class SparkUtil {
     return SparkSQLProperties.USE_TIMESTAMP_WITHOUT_TIME_ZONE_IN_NEW_TABLES_DEFAULT;
   }
 
+  public static boolean useInt96Timestamp(RuntimeConfig sessionConf) {
+    String sessionConfValue =
+            sessionConf.get(SparkSQLProperties.USE_INT96_TIMESTAMP, null);
+    if (sessionConfValue != null) {
+      return Boolean.parseBoolean(sessionConfValue);
+    }
+    return SparkSQLProperties.USE_INT96_TIMESTAMP_DEFAULT;
+  }
+
   /**
    * Pulls any Catalog specific overrides for the Hadoop conf from the current SparkSession, which
    * can be set via `spark.sql.catalog.$catalogName.hadoop.*`

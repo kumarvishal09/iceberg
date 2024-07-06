@@ -207,6 +207,7 @@ public class Types {
   public static class TimestampType extends PrimitiveType {
     private static final TimestampType INSTANCE_WITH_ZONE = new TimestampType(true);
     private static final TimestampType INSTANCE_WITHOUT_ZONE = new TimestampType(false);
+    private static final TimestampType INSTANCE_INT96 = new TimestampType(false, true);
 
     public static TimestampType withZone() {
       return INSTANCE_WITH_ZONE;
@@ -216,14 +217,29 @@ public class Types {
       return INSTANCE_WITHOUT_ZONE;
     }
 
+    public static TimestampType int96() {
+      return INSTANCE_INT96;
+    }
+
+    private final boolean adjustToInt96;
+
     private final boolean adjustToUTC;
 
     private TimestampType(boolean adjustToUTC) {
+      this(adjustToUTC, false);
+    }
+
+    private TimestampType(boolean adjustToUTC, boolean adjustToInt96) {
       this.adjustToUTC = adjustToUTC;
+      this.adjustToInt96 = adjustToInt96;
     }
 
     public boolean shouldAdjustToUTC() {
       return adjustToUTC;
+    }
+
+    public boolean shouldAdjustTo96() {
+      return adjustToInt96;
     }
 
     @Override

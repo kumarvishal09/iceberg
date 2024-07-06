@@ -67,6 +67,7 @@ public abstract class ColumnWriter<T> implements TripleWriter<T> {
               }
             };
       case FIXED_LEN_BYTE_ARRAY:
+      case INT96:
       case BINARY:
         return (ColumnWriter<T>)
             new ColumnWriter<Binary>(desc) {
