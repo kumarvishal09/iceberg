@@ -114,7 +114,9 @@ class ParquetConversions {
       case BINARY:
         return binary -> ByteBuffer.wrap(((Binary) binary).getBytes());
       case INT96:
-        return binary -> ParquetUtil.extractTimestampInt96(((Binary) binary).toByteBuffer().order(ByteOrder.LITTLE_ENDIAN));
+        return binary ->
+            ParquetUtil.extractTimestampInt96(
+                ((Binary) binary).toByteBuffer().order(ByteOrder.LITTLE_ENDIAN));
       default:
     }
 

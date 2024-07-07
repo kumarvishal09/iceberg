@@ -154,7 +154,8 @@ public class SparkSchemaUtil {
     return schema;
   }
 
-  public static Schema convert(StructType sparkType, boolean useTimestampWithoutZone, boolean useInt96) {
+  public static Schema convert(
+      StructType sparkType, boolean useTimestampWithoutZone, boolean useInt96) {
     Type converted = SparkTypeVisitor.visit(sparkType, new SparkTypeToType(sparkType));
     Schema schema = new Schema(converted.asNestedType().asStructType().fields());
     if (useTimestampWithoutZone) {

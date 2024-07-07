@@ -157,8 +157,7 @@ public class SparkUtil {
   }
 
   public static boolean useInt96Timestamp(RuntimeConfig sessionConf) {
-    String sessionConfValue =
-            sessionConf.get(SparkSQLProperties.USE_INT96_TIMESTAMP, null);
+    String sessionConfValue = sessionConf.get(SparkSQLProperties.USE_INT96_TIMESTAMP, null);
     if (sessionConfValue != null) {
       return Boolean.parseBoolean(sessionConfValue);
     }

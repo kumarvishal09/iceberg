@@ -47,7 +47,6 @@ public class SparkSQLProperties {
   public static final String DISTRIBUTION_MODE = "spark.sql.iceberg.distribution-mode";
 
   // Controls whether timestamp types for new tables should be stored with timezone info
-  public static final String USE_INT96_TIMESTAMP =
-          "spark.sql.iceberg.use-Int96-timestamp";
+  public static final String USE_INT96_TIMESTAMP = "spark.sql.iceberg.use-Int96-timestamp";
   public static final boolean USE_INT96_TIMESTAMP_DEFAULT = false;
 }

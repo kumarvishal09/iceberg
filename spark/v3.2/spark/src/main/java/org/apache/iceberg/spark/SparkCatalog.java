@@ -154,7 +154,8 @@ public class SparkCatalog extends BaseCatalog {
   public Table createTable(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws TableAlreadyExistsException {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
+    Schema icebergSchema =
+        SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     try {
       Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
       org.apache.iceberg.Table icebergTable =
@@ -173,7 +174,8 @@ public class SparkCatalog extends BaseCatalog {
   public StagedTable stageCreate(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws TableAlreadyExistsException {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
+    Schema icebergSchema =
+        SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     try {
       Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
       Transaction transaction =
@@ -192,7 +194,8 @@ public class SparkCatalog extends BaseCatalog {
   public StagedTable stageReplace(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties)
       throws NoSuchTableException {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
+    Schema icebergSchema =
+        SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     try {
       Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
       Transaction transaction =
@@ -210,7 +213,8 @@ public class SparkCatalog extends BaseCatalog {
   @Override
   public StagedTable stageCreateOrReplace(
       Identifier ident, StructType schema, Transform[] transforms, Map<String, String> properties) {
-    Schema icebergSchema = SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
+    Schema icebergSchema =
+        SparkSchemaUtil.convert(schema, useTimestampsWithoutZone, useInt96Timestamp);
     Catalog.TableBuilder builder = newBuilder(ident, icebergSchema);
     Transaction transaction =
         builder

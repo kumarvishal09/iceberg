@@ -54,7 +54,7 @@ public class TypeToMessageType {
   private static final LogicalTypeAnnotation TIME_MICROS =
       LogicalTypeAnnotation.timeType(false /* not adjusted to UTC */, TimeUnit.MICROS);
   private static final LogicalTypeAnnotation TIMESTAMP_MICROS =
-          LogicalTypeAnnotation.timestampType(false /* not adjusted to UTC */, TimeUnit.NANOS);
+      LogicalTypeAnnotation.timestampType(false /* not adjusted to UTC */, TimeUnit.NANOS);
   private static final LogicalTypeAnnotation TIMESTAMPTZ_MICROS =
       LogicalTypeAnnotation.timestampType(true /* adjusted to UTC */, TimeUnit.NANOS);
 
