@@ -195,6 +195,8 @@ public class SparkParquetWriters {
           return ParquetValueWriters.floats(desc);
         case DOUBLE:
           return ParquetValueWriters.doubles(desc);
+        case INT96:
+          return ParquetValueWriters.int96(desc);
         default:
           throw new UnsupportedOperationException("Unsupported type: " + primitive);
       }

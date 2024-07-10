@@ -338,6 +338,21 @@ public class ParquetValueWriters {
     }
   }
 
+  public static PrimitiveWriter<Long> int96(ColumnDescriptor desc) {
+    return new INT96Writer(desc);
+  }
+
+  private static class INT96Writer extends PrimitiveWriter<Long> {
+    private INT96Writer(ColumnDescriptor desc) {
+      super(desc);
+    }
+
+    @Override
+    public void write(int repetitionLevel, Long value) {
+      column.writeBinary(repetitionLevel, ParquetUtil.convertToInt96ToBinary(value));
+    }
+  }
+
   static class OptionWriter<T> implements ParquetValueWriter<T> {
     private final int definitionLevel;
     private final ParquetValueWriter<T> writer;

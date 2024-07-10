@@ -139,7 +139,7 @@ public class TypeToMessageType {
         if (((TimestampType) primitive).shouldAdjustToUTC()) {
           return Types.primitive(INT64, repetition).as(TIMESTAMPTZ_MICROS).id(id).named(name);
         } else {
-          return Types.primitive(INT64, repetition).as(TIMESTAMP_MICROS).id(id).named(name);
+          return Types.primitive(org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT96, repetition).id(id).named(name);
         }
       case STRING:
         return Types.primitive(BINARY, repetition).as(STRING).id(id).named(name);
