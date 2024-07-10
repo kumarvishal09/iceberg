@@ -81,15 +81,12 @@ public abstract class TestDelete extends SparkRowLevelOperationsTestBase {
       String fileFormat,
       Boolean vectorized,
       String distributionMode) {
-    super(catalogName, implementation, config, "parquet", vectorized, distributionMode);
+    super(catalogName, implementation, config, fileFormat, vectorized, distributionMode);
   }
 
   @BeforeClass
   public static void setupSparkConf() {
     spark.conf().set("spark.sql.shuffle.partitions", "4");
-    spark.conf().set("spark.sql.iceberg.use-timestamp-without-timezone-in-new-tables", "true");
-    spark.conf().set("spark.sql.iceberg.handle-timestamp-without-timezone", "true");
-//    spark.conf().set("spark.sql.shuffle.partitions", "4");
   }
 
   @After
@@ -140,31 +137,25 @@ public abstract class TestDelete extends SparkRowLevelOperationsTestBase {
     Assume.assumeFalse("Avro does not support metadata delete", fileFormat.equals("avro"));
     createAndInitUnpartitionedTable();
 
+    sql("INSERT INTO TABLE %s VALUES (1, 'hr'), (2, 'hardware'), (null, 'hr')", tableName);
 
-    sql("INSERT INTO TABLE %s VALUES (1, 'hr', cast(date_format('9999-12-31 23:59:59.999', 'yyyy-MM-dd HH:mm:ss.SSS') as timestamp)), (2, 'hardware', cast(date_format('9999-12-31 23:59:59.999', 'yyyy-MM-dd HH:mm:ss.SSS') as timestamp)), (null, 'hr', cast(date_format('9999-12-31 23:59:59.999', 'yyyy-MM-dd HH:mm:ss.SSS') as timestamp))", tableName);
-    spark.conf().set("spark.sql.iceberg.use-timestamp-without-timezone-in-new-tables", "false");
-    List<Object[]> sql = sql("select * from %s", tableName);
-    System.out.println();
+    // MOR mode: writes a delete file as null cannot be deleted by metadata
+    sql("DELETE FROM %s AS t WHERE t.id IS NULL", tableName);
 
-//    sql("INSERT INTO TABLE %s VALUES (1, 'hr'), (2, 'hardware'), (null, 'hr')", tableName);
-//
-//    // MOR mode: writes a delete file as null cannot be deleted by metadata
-//    sql("DELETE FROM %s AS t WHERE t.id IS NULL", tableName);
-//
-//    // Metadata Delete
-//    Table table = Spark3Util.loadIcebergTable(spark, tableName);
-//    List<DataFile> dataFilesBefore = TestHelpers.dataFiles(table);
-//
-//    sql("DELETE FROM %s AS t WHERE t.id = 1", tableName);
-//
-//    List<DataFile> dataFilesAfter = TestHelpers.dataFiles(table);
-//    Assert.assertTrue(
-//        "Data file should have been removed", dataFilesBefore.size() > dataFilesAfter.size());
-//
-//    assertEquals(
-//        "Should have expected rows",
-//        ImmutableList.of(row(2, "hardware")),
-//        sql("SELECT * FROM %s ORDER BY id", tableName));
+    // Metadata Delete
+    Table table = Spark3Util.loadIcebergTable(spark, tableName);
+    List<DataFile> dataFilesBefore = TestHelpers.dataFiles(table);
+
+    sql("DELETE FROM %s AS t WHERE t.id = 1", tableName);
+
+    List<DataFile> dataFilesAfter = TestHelpers.dataFiles(table);
+    Assert.assertTrue(
+        "Data file should have been removed", dataFilesBefore.size() > dataFilesAfter.size());
+
+    assertEquals(
+        "Should have expected rows",
+        ImmutableList.of(row(2, "hardware")),
+        sql("SELECT * FROM %s ORDER BY id", tableName));
   }
 
   @Test
